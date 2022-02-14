@@ -10,7 +10,7 @@ public class LevelEditor : Editor
     private Level _thisLevel;
 
     public override void OnInspectorGUI()
-    {       
+    {
         _thisLevel.TriangleExtention.Use = GUILayout.Toggle(_thisLevel.TriangleExtention.Use, "Triangle are availale");
         if (_thisLevel.TriangleExtention.Use)
         {
@@ -40,9 +40,32 @@ public class LevelEditor : Editor
         //base.OnInspectorGUI();
     }
 
+    private void CheckChildrenSelection()
+    {
+        if (Application.isPlaying)
+        {
+            EditorApplication.update -= CheckChildrenSelection;
+            return;
+        }
+        if (Selection.activeGameObject == null)
+            return;
+        if (_thisLevel == null)
+            return;
+        if (Selection.activeGameObject.transform.parent != _thisLevel.transform)
+        {
+            _thisLevel.gameObject.SetActive(false);
+            EditorApplication.update -= CheckChildrenSelection;
+        }
+        else
+        {
+            _thisLevel.gameObject.SetActive(true);
+        }
+    }
+
+
     private void OnDisable()
     {
-        _thisLevel.gameObject.SetActive(false);
+        EditorApplication.update += CheckChildrenSelection;
     }
 
     private void OnEnable()
